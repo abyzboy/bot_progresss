@@ -1,7 +1,6 @@
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from database import get_db
-from dotenv import load_dotenv
 import os
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
