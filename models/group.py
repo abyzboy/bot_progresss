@@ -8,15 +8,12 @@ class Group(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, default='Untitled')
 
-    # Добавлен ForeignKey
     author_id = Column(Integer, ForeignKey('users.id'))
 
-    # Исправлено: 'User' вместо 'user'
     author = relationship('User', back_populates='own_groups')
 
-    # Исправлено: 'User' вместо 'user'
     members = relationship(
         'User',
-        secondary='users_groups',  # Исправлено имя таблицы
+        secondary='users_groups',
         back_populates='groups'
     )

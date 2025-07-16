@@ -10,11 +10,9 @@ class User(Base):
     username = Column(String)
     role = Column(String, default='student')
 
-    # Исправлено: 'Group' вместо 'group'
-    groups = relationship('Group', secondary='users_groups',  # Исправлено имя таблицы
+    groups = relationship('Group', secondary='users_groups',
                           back_populates='members')
 
-    # Исправлено: 'Group' вместо 'group'
     own_groups = relationship('Group', back_populates='author', uselist=True)
 
     def is_admin(self) -> bool:
