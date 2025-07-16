@@ -1,5 +1,4 @@
 import asyncio
-from dotenv import load_dotenv
 from app.handlers import rt as handler_rt
 from app.teacher_handlers import rt as teacher_rt
 from bot import bot, dp
@@ -11,7 +10,6 @@ from models.user_group import UserGroup
 
 
 async def main():
-    load_dotenv()
     dp.startup.register(startup)
     dp.shutdown.register(shutdown)
     dp.include_router(handler_rt)

@@ -1,5 +1,5 @@
 from aiogram import Router, F, types
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, CommandObject, CommandStart
 import app.keyboards as kb
 from sqlalchemy import select
@@ -48,3 +48,13 @@ async def cmd_start(message: types.Message, session: AsyncSession):
 @rt.message(Command('help'))
 async def get_help(message: Message):
     await message.answer('Бот ничего не умеет', reply_markup=kb.main)
+
+
+@rt.message(Command('groups'))
+async def get_groups(message: Message, session: AsyncSession):
+    await message.answer(f'Выберите группу в которую хотите вступить', reply_markup=await kb.group_builder(session))
+
+
+@rt.callback_query(F.data.startswith('group_'))
+async def group_handler(callback: CallbackQuery):
+    await callback.message.edit_text(f'Вы выбрали группу {callback.data[6:]}')

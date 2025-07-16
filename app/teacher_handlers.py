@@ -46,7 +46,6 @@ async def create_group(message: Message, command: CommandObject, session: AsyncS
         return
 
     try:
-        # Создаем новую группу
         group = Group(name=name_group, author=current_user)
         # Сохраняем в БД
         session.add(group)
@@ -62,8 +61,9 @@ async def create_group(message: Message, command: CommandObject, session: AsyncS
 @rt.message(Command('send_homework'))
 async def send_homework(message: Message, state: FSMContext):
     await state.set_state(HomeWork.date)
-    await message.answer('напишите на какую дату вы хотите задать домашнее задание?\nПример ввода: 15.05')
+    await message.answer('напишите на какую дату вы хотите задать домашнее задание?\nПример ввода: 23.09')
 
 
 @rt.message(HomeWork.date)
-async def homework_date(message: Message, state):
+async def homework_date(message: Message, state: FSMContext):
+    ...
