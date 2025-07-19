@@ -5,13 +5,16 @@ import app.keyboards as kb
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.user import User
+from models.group import Group
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from app.utils import get_current_user
 rt = Router()
 
 
 @rt.message(Command('add_teacher'))
 async def add_teacher(message: Message, command: CommandObject, session: AsyncSession):
-    current_user = await get_current_user(session, message)
+    current_user = await get_current_user(session, message.from_user.id)
     if current_user.is_admin():
         username = command.args[1:]
         result = await session.execute(select(User).where(User.username == username))
@@ -30,7 +33,7 @@ async def add_teacher(message: Message, command: CommandObject, session: AsyncSe
 @rt.message(CommandStart())
 async def cmd_start(message: types.Message, session: AsyncSession):
     # Проверяем существование пользователя
-    user = await get_current_user(session, message)
+    user = await get_current_user(session, message.from_user.id)
 
     # Создаем нового пользователя если не найден
     if not user:
@@ -55,6 +58,19 @@ async def get_groups(message: Message, session: AsyncSession):
     await message.answer(f'Выберите группу в которую хотите вступить', reply_markup=await kb.group_builder(session))
 
 
+@rt.message(F.text == 'отмена')
+async def process_theme(message: Message, state: FSMContext):
+    await state.clear()
+
+
 @rt.callback_query(F.data.startswith('group_'))
-async def group_handler(callback: CallbackQuery):
-    await callback.message.edit_text(f'Вы выбрали группу {callback.data[6:]}')
+async def group_handler(callback: CallbackQuery, session: AsyncSession):
+    group_name = callback.data[6:]
+    group = (await session.execute(select(Group).where(Group.name == group_name))).scalar_one_or_none()
+    user = await get_current_user(session, callback.from_user.id)
+    if group:
+        group.members.append(user)
+        await session.commit()
+        await callback.message.edit_text(f'Вы выбрали группу {group_name}.')
+    else:
+        await callback.message.edit_text(f'Данной группы не существует.')

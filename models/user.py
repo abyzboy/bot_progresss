@@ -11,9 +11,10 @@ class User(Base):
     role = Column(String, default='student')
 
     groups = relationship('Group', secondary='users_groups',
-                          back_populates='members')
+                          back_populates='members', lazy='selectin')
 
-    own_groups = relationship('Group', back_populates='author', uselist=True)
+    own_groups = relationship(
+        'Group', back_populates='author', uselist=True, lazy='selectin')
 
     def is_admin(self) -> bool:
         return self.role == 'admin'
